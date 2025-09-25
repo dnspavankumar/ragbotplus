@@ -265,6 +265,80 @@
   border-radius: 50%;
 }
 
+/* ===== THINKING SECTION ===== */
+.thinking-section {
+    margin-top: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.thinking-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.thinking-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--color-text-primary);
+}
+
+.thinking-toggle i:first-child {
+    color: var(--color-accent);
+    margin-right: 8px;
+}
+
+.thinking-toggle i:last-child {
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+}
+
+.thinking-content {
+    background: rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--color-border);
+    padding: 12px;
+}
+
+.thinking-content-inner {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.thinking-content-inner p {
+    margin: 0 0 8px 0;
+}
+
+.thinking-content-inner p:last-child {
+    margin-bottom: 0;
+}
+
+/* Dark theme specific styles */
+[data-theme='dark'] .thinking-section {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .thinking-content {
+    background: rgba(0, 0, 0, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .thinking-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
 /* ===== EMAIL COMPONENTS ===== */
 .emails-container {
   display: flex;

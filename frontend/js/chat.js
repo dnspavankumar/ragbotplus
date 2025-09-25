@@ -228,12 +228,23 @@ class ChatInterface {
         
         const timestamp = new Date();
         const timeString = formatTime(timestamp);
-        
         const avatarIcon = type === 'user' ? 
             '<i class="fas fa-user"></i>' : 
             '<i class="fas fa-robot"></i>';
         
-        const parsedContent = parseMarkdown(content);
+        // Parse the message content
+        let messageContent = content;
+        let thinkingContent = '';
+        
+        // Extract thinking content if present
+        const thinkMatch = content.match(/<think>([\s\S]*?)<\/think>/);
+        if (thinkMatch) {
+            thinkingContent = thinkMatch[1];
+            messageContent = content.replace(/<think>[\s\S]*?<\/think>/, '');
+        }
+        
+        const parsedContent = parseMarkdown(messageContent);
+        const parsedThinking = thinkingContent ? parseMarkdown(thinkingContent) : '';
         
         messageEl.innerHTML = `
             <div class="message-avatar">
@@ -242,12 +253,40 @@ class ChatInterface {
             <div class="message-content">
                 <div class="message-bubble ${isError ? 'error' : ''}">
                     ${parsedContent}
+                    ${thinkingContent ? `
+                    <div class="thinking-section">
+                        <button class="thinking-toggle" aria-expanded="false">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Show Thinking Process</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="thinking-content" style="display: none;">
+                            <div class="thinking-content-inner">
+                                ${parsedThinking}
+                            </div>
+                        </div>
+                    </div>` : ''}
                 </div>
                 <div class="message-time">
                     <span>${timeString}</span>
                 </div>
-            </div>
-        `;
+            </div>`;
+            
+        // Add event listener for thinking toggle if it exists
+        if (thinkingContent) {
+            const toggleBtn = messageEl.querySelector('.thinking-toggle');
+            const content = messageEl.querySelector('.thinking-content');
+            
+            toggleBtn.addEventListener('click', () => {
+                const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+                toggleBtn.setAttribute('aria-expanded', !isExpanded);
+                content.style.display = isExpanded ? 'none' : 'block';
+                toggleBtn.querySelector('span').textContent = 
+                    isExpanded ? 'Show Thinking Process' : 'Hide Thinking Process';
+                toggleBtn.querySelector('.fa-chevron-down').style.transform = 
+                    isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
         
         // Add copy functionality to assistant messages
         if (type === 'assistant') {
