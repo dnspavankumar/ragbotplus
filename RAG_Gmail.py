@@ -45,15 +45,15 @@ Summerize the given Email in the following format, keep it brief but don't lose 
 OUTPUT FORMAT:
 <Email Start>
 Date and Time:  (format: dd-MMM-yyyy HH h:mmtt [with time zone])
-Sender:
+Sender: 
 CC:
 Subject:
-Email Context:
+Email Context: 
 <Email End>
 '''
 
         prompt = f'''
-The email is the following:
+The email is the following: 
 
 date and time: {mail_date}
 from: {mail_from}
@@ -73,7 +73,7 @@ Please summarize this email according to the format above.
             temperature=0.3,
             max_tokens=1000
         )
-
+        
         if response and hasattr(response, 'choices') and response.choices:
             return response.choices[0].message.content
         else:
@@ -85,7 +85,7 @@ CC: {mail_cc}
 Subject: {mail_subject}
 Email Context: {mail_body[:500]}...
 <Email End>'''
-
+            
     except Exception as e:
         print(f"(EMAILS LOADER): Error summarizing email: {e}")
         # Return a basic formatted version of the email
@@ -103,7 +103,7 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 def authenticate_gmail():
     creds = None
     token_file = 'token.json'
-
+    
     if os.path.exists(token_file):
         creds = Credentials.from_authorized_user_file(token_file, SCOPES)
     if not creds or not creds.valid:
@@ -132,7 +132,7 @@ def get_plain_text_body(parts):
     """ Recursively extract plain text from MIME parts, with fallback to cleaned HTML if necessary. """
     plain_text = None
     html_text = None
-
+    
     for part in parts:
         mime_type = part['mimeType']
         if 'parts' in part:
@@ -162,7 +162,7 @@ def get_message_details(service, user_id, msg_id):
             details['Body'] = clean_html(body)
         else:
             details['Body'] = None
-
+        
         return details
     except Exception as error:
         print(f'An error occurred: {error}')
@@ -233,7 +233,7 @@ def Vector_Search(query, demo=False, k=K):
         query_embedding = get_embedding(query)
         distances, indices = index.search(query_embedding, k)
         decoded_texts = []
-
+        
         print(f"DEBUG: Found {len(indices[0])} indices")
         for idx in indices[0]:
             try:
@@ -245,9 +245,9 @@ def Vector_Search(query, demo=False, k=K):
                     print(f"DEBUG: No text found for index {idx + 1}")
             except Exception as e:
                 print(f"DEBUG: Error fetching text for index {idx + 1}: {str(e)}")
-
+        
         conn.close()
-
+        
         if demo:
             print("Decoded texts of nearest neighbors:")
             for text in decoded_texts:
@@ -256,10 +256,10 @@ def Vector_Search(query, demo=False, k=K):
                 print(text)
             print("*********************************************")
             print("Distances to nearest neighbors:", distances)
-
+        
         print(f"DEBUG: Returning {len(decoded_texts)} decoded texts")
         return decoded_texts if decoded_texts else ["No relevant emails found."]
-
+        
     except Exception as e:
         print(f"DEBUG: Error in Vector_Search: {str(e)}")
         print(f"DEBUG: Traceback: {traceback.format_exc()}")
@@ -268,21 +268,21 @@ def Vector_Search(query, demo=False, k=K):
 def load_emails():
     i = 1
     service = authenticate_gmail()
-
+    
     # Get current month's start date with timezone awareness
     current_date = datetime.now(timezone.utc)
     first_day_of_month = current_date.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-
+    
     # Create a more specific query for Canara Bank emails from current month
-    query = f'after:{first_day_of_month.strftime("%Y/%m/%d")} from:dnspavankumar2006 OR from: Pavan'
+    query = f'after:{first_day_of_month.strftime("%Y/%m/%d")} from:canarabank OR from:canara'
     messages = list_messages(service, 'me', query)
-
+    
     if not messages:
-        print('(EMAILS LOADER): No messages found for this month.')
+        print('(EMAILS LOADER): No Canara Bank messages found for this month.')
     else:
         index = get_index()
         conn, cursor = initiate_meta_store()
-
+        
         for msg in messages:
             msg_id = msg['id']
             details = get_message_details(service, 'me', msg_id)
@@ -291,7 +291,7 @@ def load_emails():
                 # Ensure message_datetime is timezone-aware
                 if message_datetime.tzinfo is None:
                     message_datetime = message_datetime.replace(tzinfo=timezone.utc)
-
+                
                 # Skip if email is from before this month
                 if message_datetime < first_day_of_month:
                     continue
@@ -303,14 +303,14 @@ def load_emails():
 
                 full_email = summerize_email(mail_from, mail_cc, mail_subject, message_datetime, mail_body)
                 insert_email_record(full_email, index, cursor)
-
+                
                 print(f"(EMAILS LOADER): Canara Bank Email # {i} is detected and inserted: ({message_datetime}), ({mail_subject}).")
                 i += 1
 
         terminate_meta_store(conn)
         faiss.write_index(index, INDEX_NAME)
         print("(EMAILS LOADER): Vector store and metadata saved.")
-
+        
         # Update last checked time to current time
         update_last_checked_time(datetime.now(timezone.utc))
 
@@ -319,11 +319,11 @@ def ask_question(question, messages=None):
         print(f"DEBUG: Starting ask_question with question: {question}")
         print(f"DEBUG: GROQ_API_KEY set: {'Yes' if GROQ_API_KEY else 'No'}")
         print(f"DEBUG: client initialized: {'Yes' if client else 'No'}")
-
+        
         # Check if client is properly initialized
         if not client or not GROQ_API_KEY:
             raise ValueError("Groq client not properly initialized - API key missing or invalid")
-
+        
         if messages is None:
             print("DEBUG: New conversation started")
             try:
@@ -332,7 +332,7 @@ def ask_question(question, messages=None):
             except Exception as e:
                 print(f"DEBUG: Error in Vector_Search: {str(e)}")
                 raise
-
+                
             system_content = (
                 "You are an AI assistant with access to a collection of emails. "
                 "Below, you'll find the most relevant emails retrieved for the user's question. "
@@ -342,16 +342,16 @@ def ask_question(question, messages=None):
             )
 
             local_timezone = get_localzone()
-
+            
             context = f"Today's Datetime is {datetime.now(local_timezone)}\n\n"
             for i, email in enumerate(related_emails):
                 context += f"Email({i+1}):\n\n{email}\n\n"
-
+            
             messages = [
                 {"role": "system", "content": system_content + "\n\n" + context},
                 {"role": "user", "content": question}
             ]
-
+            
             print("DEBUG: Preparing to call Groq API for new conversation")
         else:
             print("DEBUG: Follow-up question in existing conversation")
@@ -359,11 +359,11 @@ def ask_question(question, messages=None):
             # Just add the new user question to existing messages
             messages_to_send = messages + [{"role": "user", "content": question}]
             print("DEBUG: Preparing to call Groq API with conversation history")
-
+        
         # Make the API call
         try:
             print("DEBUG: Calling Groq API...")
-
+            
             # For new conversation
             if messages and len(messages) > 1 and "user" in messages[-1]["role"]:
                 # If last message is from user, we need to append the new question
@@ -374,19 +374,19 @@ def ask_question(question, messages=None):
             else:
                 # Follow-up question
                 api_messages = messages + [{"role": "user", "content": question}]
-
+            
             print(f"DEBUG: API messages structure: {[m['role'] for m in api_messages]}")
-
+            
             response = client.chat.completions.create(
                 model="deepseek-r1-distill-llama-70b",
                 messages=api_messages,
                 temperature=0.3,
                 max_tokens=1000
             )
-
+            
             print("DEBUG: API call completed")
             print(f"DEBUG: Response type: {type(response)}")
-
+            
             # Carefully check the response structure
             if response is None:
                 print("DEBUG: Response is None")
@@ -407,11 +407,11 @@ def ask_question(question, messages=None):
                     print(f"DEBUG: Error extracting message content: {str(content_error)}")
                     print(f"DEBUG: Response structure: {response}")
                     assistant_reply = "I apologize, but I couldn't process the response from the language model."
-
+            
         except Exception as api_error:
             print(f"DEBUG: API call error: {str(api_error)}")
             assistant_reply = "I apologize, but there was an error connecting to the language model. Please check your API key and internet connection."
-
+        
         # Update message history
         if messages is None:
             messages = [
@@ -422,17 +422,17 @@ def ask_question(question, messages=None):
         else:
             messages.append({"role": "user", "content": question})
             messages.append({"role": "assistant", "content": assistant_reply})
-
+        
         print("DEBUG: Returning successful response")
         return messages, assistant_reply
-
+        
     except Exception as e:
         import traceback
         print(f"DEBUG: Critical error in ask_question: {str(e)}")
         print(f"DEBUG: Traceback: {traceback.format_exc()}")
-
+        
         error_message = f"I apologize, but I encountered a system error while processing your request. Error details: {str(e)}"
-
+        
         if messages is None:
             messages = [
                 {"role": "system", "content": "Error occurred"},
@@ -442,5 +442,5 @@ def ask_question(question, messages=None):
         else:
             messages.append({"role": "user", "content": question})
             messages.append({"role": "assistant", "content": error_message})
-
-        return messages, error_message
+        
+        return messages, error_message 
