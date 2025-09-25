@@ -1,13 +1,12 @@
-/* ===== KEYFRAME ANIMATIONS ===== */
-
+/* === ANIMATIONS === */
 @keyframes pulse {
   0% {
     transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.2);
-    opacity: 0.7;
+    transform: scale(1.05);
+    opacity: 0.85;
   }
   100% {
     transform: scale(1);
@@ -176,40 +175,38 @@
   animation: fadeOut 0.3s ease forwards;
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.animate-fade-out {
+  animation: fadeOut 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 .animate-slide-up {
-  animation: slideUp 0.4s ease forwards;
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
 .animate-slide-down {
-  animation: slideDown 0.4s ease forwards;
+  animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
 .animate-slide-in-left {
-  animation: slideInLeft 0.4s ease forwards;
+  animation: slideInLeft 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
 .animate-slide-in-right {
-  animation: slideInRight 0.4s ease forwards;
+  animation: slideInRight 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
 .animate-scale-in {
-  animation: scaleIn 0.3s ease forwards;
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-
 .animate-bounce {
-  animation: bounce 1s;
+  animation: bounce 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
-
 .animate-spin {
-  animation: spin 1s linear infinite;
+  animation: spin 1.2s linear infinite;
 }
-
 .animate-pulse {
-  animation: pulse 2s infinite;
+  animation: pulse 2.5s infinite;
 }
-
 .animate-glow {
-  animation: glow 2s ease-in-out infinite alternate;
+  animation: glow 2.5s ease-in-out infinite alternate;
 }
 
 /* ===== MESSAGE ANIMATIONS ===== */
@@ -237,12 +234,13 @@
 }
 
 /* ===== BUTTON HOVER ANIMATIONS ===== */
-
 .btn {
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: box-shadow 0.3s;
 }
-
 .btn::before {
   content: '';
   position: absolute;
@@ -250,15 +248,17 @@
   left: 50%;
   width: 0;
   height: 0;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(37, 99, 235, 0.12);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
+  transition: width 0.5s, height 0.5s;
 }
-
+.btn:hover {
+  box-shadow: 0 4px 16px rgba(37,99,235,0.10);
+}
 .btn:hover::before {
-  width: 300px;
-  height: 300px;
+  width: 220px;
+  height: 220px;
 }
 
 /* ===== LOADING ANIMATIONS ===== */
@@ -268,9 +268,9 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, 
-    var(--color-bg-secondary) 0%, 
-    var(--color-bg-tertiary) 50%, 
+  background: linear-gradient(90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 50%,
     var(--color-bg-secondary) 100%
   );
   background-size: 200px 100%;
